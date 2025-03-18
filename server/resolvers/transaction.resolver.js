@@ -1,4 +1,5 @@
-import { users } from "../dummyData/data.js";
+import Transaction from "../models/transaction.model.js";
+import User from "../models/user.model.js";
 
 const transactionResolver = {
   Query: {
@@ -6,7 +7,7 @@ const transactionResolver = {
       try {
         if (!context.getUser()) throw new Error("Unauthorizeed");
         const userId = await context.getUser()._id;
-        const transactions = await transactionResolver.find({ userId });
+        const transactions = await Transaction.find({ userId });
 
         return transactions;
       } catch (error) {
