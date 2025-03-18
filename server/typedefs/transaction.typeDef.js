@@ -7,7 +7,7 @@ const transactionTypeDef = `#graphql
         category: String!
         amount: Float!
         location: String
-        data: String!
+        date: String!
     }
 
     type Query {
