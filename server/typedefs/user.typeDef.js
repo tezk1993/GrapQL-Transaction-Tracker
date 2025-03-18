@@ -23,8 +23,8 @@ const userTypeDef = `#graphql
     input SignUpInput{
         username: String!
         name: String!
-        password: String
-        gender: String
+        password: String!
+        gender: String!
     }
 
 

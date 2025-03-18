@@ -2,7 +2,7 @@ import { users } from "../dummyData/data.js";
 
 const transactionResolver = {
   Query: {
-    transactions: async (_, _, context) => {
+    transactions: async (_, __, context) => {
       try {
         if (!context.getUser()) throw new Error("Unauthorizeed");
         const userId = await context.getUser()._id;
@@ -52,7 +52,7 @@ const transactionResolver = {
         throw new Error(error.message || "Error updating transaction");
       }
     },
-    deleteTransaction: async (_, { transactionId }, _) => {
+    deleteTransaction: async (_, { transactionId }, __) => {
       try {
         const deletedTransaction = await Transaction.findByIdAndDelete(
           transactionId

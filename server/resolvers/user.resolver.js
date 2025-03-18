@@ -1,10 +1,9 @@
-import { __EnumValue } from "graphql";
-import { users } from "../dummyData/data.js";
 import User from "../models/user.model.js";
+import bcrypt from "bcryptjs";
 
 const userResolver = {
   Query: {
-    authUser: async (_, _, context) => {
+    authUser: async (_, __, context) => {
       try {
         const user = await context.getUser();
         return user;
@@ -41,18 +40,15 @@ const userResolver = {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        let randomProfilePicture = "";
-        if (gender === "Male") {
-          randomProfilePicture = `https://avatar.iran.liara.run/public/boy?username=${username}`;
-        } else if (gender === "Female") {
-          randomProfilePicture = `https://avatar.iran.liara.run/public/girl?username=${username}`;
-        }
+        const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+        const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
 
         const newUser = new User({
           username,
+          name,
           password: hashedPassword,
           gender,
-          profilePicture: randomProfilePicture,
+          profilePicture: gender === "male" ? boyProfilePic : girlProfilePic,
         });
 
         await newUser.save();
@@ -66,27 +62,27 @@ const userResolver = {
     login: async (_, { input }, context) => {
       try {
         const { username, password } = input;
+        if (!username || !password) throw new Error("All fields are required");
+        const { user } = await context.authenticate("graphql-local", {
+          username,
+          password,
+        });
 
-        const { user } = await context.authenticate(
-          "graphql-local",
-          (username, password)
-        );
         await context.login(user);
-
         return user;
-      } catch (error) {
-        console.error("Error in sign in: ", error);
-        throw new Error(error.message || "Internal server error");
+      } catch (err) {
+        console.error("Error in login:", err);
+        throw new Error(err.message || "Internal server error");
       }
     },
-    logout: async (_, _, context) => {
+    logout: async (_, __, context) => {
       try {
         await context.logout();
 
-        req.session.destroy((err) => {
+        context.req.session.destroy((err) => {
           if (err) throw err;
         });
-        res.clearCookie("connect.sid");
+        context.res.clearCookie("connect.sid");
         return { message: "Signed out successfully" };
       } catch (error) {
         console.error("Error in signing out: ", error);
