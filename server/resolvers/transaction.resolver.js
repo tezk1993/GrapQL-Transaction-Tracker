@@ -24,6 +24,28 @@ const transactionResolver = {
         throw new Error(error.message || "Error getting transaction");
       }
     },
+
+    categoryStatistics: async (_, __, context) => {
+      if (!context.getUser()) throw new error("Unauthorized");
+      const userId = context.getUser()._id;
+
+      const transactions = await Transaction.find({ userId });
+
+      const categoryMap = {};
+
+      transactions.forEach((transaction) => {
+        if (!categoryMap[transaction.category]) {
+          categoryMap[transaction.category] = 0;
+        }
+
+        categoryMap[transaction.category] += transaction.amount;
+      });
+
+      return Object.entries(categoryMap).map(([category, totalAmount]) => ({
+        category,
+        totalAmount,
+      }));
+    },
   },
 
   Mutation: {
@@ -62,6 +84,19 @@ const transactionResolver = {
       } catch (error) {
         console.error("Error in deleting transaction: ", error);
         throw new Error(error.message || "Error deleting transaction");
+      }
+    },
+  },
+
+  Transaction: {
+    user: async (parent) => {
+      const userId = parent.userId;
+      try {
+        const user = await User.findById(userId);
+        return user;
+      } catch (error) {
+        console.log("Error in user.transactions resolver: ", error);
+        throw new Error(error.message);
       }
     },
   },

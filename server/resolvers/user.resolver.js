@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Transaction from "../models/transaction.model.js";
 import bcrypt from "bcryptjs";
 
 const userResolver = {
@@ -87,6 +88,18 @@ const userResolver = {
       } catch (error) {
         console.error("Error in signing out: ", error);
         throw new Error(error.message || "Internal server error");
+      }
+    },
+  },
+
+  User: {
+    transactions: async (parent, _, context) => {
+      try {
+        const transactions = await Transaction.find({ userId: parent._id });
+        return transactions;
+      } catch (error) {
+        console.error("Error in user.transaction resolver: ", error);
+        throw new Error(err.message || "Error occured");
       }
     },
   },
