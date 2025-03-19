@@ -18,8 +18,9 @@ const categoryColorMap = {
 };
 
 const Card = ({ transaction }) => {
+  console.log("Card transaction", transaction);
   if (!transaction) return null;
-  let { category, amount, location, date, paymentType, description } =
+  let { category, amount, location, date, paymentType, description, user } =
     transaction;
   const cardClass = categoryColorMap[category];
 
@@ -80,7 +81,7 @@ const Card = ({ transaction }) => {
         <div className="flex justify-between items-center">
           <p className="text-xs text-black font-bold">{formattedDate}</p>
           <img
-            src={"https://tecdn.b-cdn.net/img/new/avatars/2.webp"}
+            src={user.profilePicture}
             className="h-8 w-8 border rounded-full"
             alt=""
           />
