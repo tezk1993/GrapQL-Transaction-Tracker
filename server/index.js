@@ -2,6 +2,8 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+
 import { expressMiddleware } from "@apollo/server/express4";
 
 import passport from "passport";
@@ -16,8 +18,11 @@ import mergedResolvers from "./resolvers/index.js";
 import mergedTypeDefs from "./typedefs/index.js";
 import { connectDB } from "./db/connectDB.js";
 import { configurePassport } from "./passport/passport.config.js";
+
 dotenv.config();
 configurePassport();
+
+const __dirname = path.resolve();
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -69,7 +74,15 @@ app.use(
   })
 );
 
+// npm run build will build your frontend app, and it will the optimized version of your app
+app.use(express.static(path.join(__dirname, "client/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client/dist", "index.html"));
+});
+
 // Modified server startup
 await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
 await connectDB();
+console.log(process.env.NODE_ENV);
 console.log(`🚀 Server ready at http://localhost:4000/graphql`);
